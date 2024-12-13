@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Net Banking</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f3f4f6;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+        h1, h2 {
+            text-align: center;
+            color: #333;
+        }
+        .form-group {
+            margin: 20px 0;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .btn-login {
+            background-color: #4caf50;
+        }
+        .btn-logout {
+            background-color: #e74c3c;
+        }
+        .btn-transfer {
+            background-color: #3498db;
+        }
+        .btn-history {
+            background-color: #f39c12;
+        }
+        .btn:hover {
+            opacity: 0.9;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Net Banking</h1>
+        <div id="login-section">
+            <h2>Login</h2>
+            <div class="form-group">
+                <label for="userId">User ID</label>
+                <input type="text" id="userId" placeholder="Enter your User ID">
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter your password">
+            </div>
+            <button class="btn btn-login" onclick="login()">Login</button>
+        </div>
+
+        <div id="dashboard" class="hidden">
+            <h2>Welcome!</h2>
+            <p id="balance-info">Balance: ₹0</p>
+            <button class="btn btn-transfer" onclick="showTransfer()">Transfer Money</button>
+            <button class="btn btn-history" onclick="showHistory()">Transaction History</button>
+            <button class="btn btn-logout" onclick="logout()">Logout</button>
+
+            <div id="transfer-section" class="hidden">
+                <h3>Transfer Money</h3>
+                <div class="form-group">
+                    <label for="recipient">Recipient Account Number</label>
+                    <input type="text" id="recipient" placeholder="Enter account number">
+                </div>
+                <div class="form-group">
+                    <label for="amount">Amount</label>
+                    <input type="number" id="amount" placeholder="Enter amount">
+                </div>
+                <button class="btn btn-transfer" onclick="transferMoney()">Send Money</button>
+            </div>
+
+            <div id="history-section" class="hidden">
+                <h3>Transaction History</h3>
+                <ul id="transaction-list"></ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const users = {
+            "7605975845": { password: "emon@123#", balance: 0, history: [] },
+            "8984918325": { password: "aman@123#", balance: 0, history: [] },
+            "9940492428": { password: "9940492428", balance: 100000, history: [] },
+        };
+
+        let currentUser = null;
+
+        function login() {
+            const userId = document.getElementById("userId").value;
+            const password = document.getElementById("password").value;
+
+            if (users[userId] && users[userId].password === password) {
+                currentUser = userId;
+                document.getElementById("login-section").classList.add("hidden");
+                document.getElementById("dashboard").classList.remove("hidden");
+                updateBalance();
+            } else {
+                alert("Invalid credentials!");
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById("dashboard").classList.add("hidden");
+            document.getElementById("login-section").classList.remove("hidden");
+        }
+
+        function updateBalance() {
+            document.getElementById("balance-info").textContent = `Balance: ₹${users[currentUser].balance}`;
+        }
+
+        function showTransfer() {
+            document.getElementById("transfer-section").classList.remove("hidden");
+            document.getElementById("history-section").classList.add("hidden");
+        }
+
+        function showHistory() {
+            document.getElementById("transfer-section").classList.add("hidden");
+            document.getElementById("history-section").classList.remove("hidden");
+            const historyList = document.getElementById("transaction-list");
+            historyList.innerHTML = "";
+            users[currentUser].history.forEach((transaction, index) => {
+                const item = document.createElement("li");
+                item.textContent = `${index + 1}. ${transaction}`;
+                historyList.appendChild(item);
+            });
+        }
+
+        function transferMoney() {
+            const recipient = document.getElementById("recipient").value;
+            const amount = parseFloat(document.getElementById("amount").value);
+
+            if (users[recipient] && amount > 0 && amount <= users[currentUser].balance) {
+                users[currentUser].balance -= amount;
+                users[recipient].balance += amount;
+                users[currentUser].history.push(`Transferred ₹${amount} to ${recipient}`);
+                users[recipient].history.push(`Received ₹${amount} from ${currentUser}`);
+                updateBalance();
+                alert("Transaction successful!");
+            } else {
+                alert("Invalid transaction!");
+            }
+        }
+    </script>
+</body>
+  </html>
